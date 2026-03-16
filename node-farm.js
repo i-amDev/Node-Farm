@@ -1,5 +1,6 @@
 const http = require('http');
 const fs = require('fs');
+const url = require('url');
 
 const templateOverview = fs.readFileSync(`${__dirname}/templates/template-overview.html`, 'utf-8');
 const templateCard= fs.readFileSync(`${__dirname}/templates/template-card.html`, 'utf-8');
@@ -27,25 +28,30 @@ const replaceTemplate = (template, product) => {
 // Create a server
 const server = http.createServer((request, response) => {
 
-    const pathName = request.url;
+    const {query, pathname} = url.parse(request.url, true);
 
     // Overview page
-    if (pathName === '/overview' || pathName === '/') {
+    if (pathname === '/overview' || pathname === '/') {
         response.writeHead(200, {'Content-type': 'text/html'});
 
         const cardsHtml = dataObj.map(element => replaceTemplate(templateCard, element)).join('');
         const output = templateOverview.replace('{%PRODUCT_CARDS%}', cardsHtml);
-        
+
         response.end(output);
     }
 
     // Product page
-    else if (pathName === '/product') {
-        response.end('This is the PRODUCT');
+    else if (pathname === '/product') {
+        response.writeHead(200, {'Content-type': 'text/html'});
+
+        const product = dataObj[query.id];
+        const output = replaceTemplate(templateProduct, product);
+
+        response.end(output);
     }
 
     // API
-    else if (pathName === '/api') {
+    else if (pathname === '/api') {
         response.writeHead(200, {'Content-type': 'application/json'});
         response.end(data);
     }
