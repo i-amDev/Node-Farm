@@ -1,5 +1,8 @@
 const http = require('http');
-const url = require('url');
+const fs = require('fs');
+
+const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, 'utf-8');
+const dataObj = JSON.parse(data);
 
 // Create a server
 const server = http.createServer((request, response) => {
@@ -11,6 +14,10 @@ const server = http.createServer((request, response) => {
     }
     else if (pathName === '/product') {
         response.end('This is the PRODUCT');
+    }
+    else if (pathName === '/api') {
+        response.writeHead(200, {'Content-type': 'application/json'});
+        response.end(data);
     }
     else {
         response.writeHead(404, {
